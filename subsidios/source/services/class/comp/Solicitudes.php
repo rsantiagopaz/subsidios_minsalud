@@ -143,6 +143,38 @@ class class_Solicitudes extends class_Base
   public function method_leer_rendiciones($params, $error) {
 	$p = $params[0];
 	
+	$movilidad = array();
+	$movilidad["1"] = "Avión";
+	$movilidad["2"] = "A.Sanitario";
+	$movilidad["3"] = "A.Linea";
+	$movilidad["4"] = "Terrestre";
+	
+	$ambulancia = array();
+	$ambulancia["1"] = "Médico";
+	$ambulancia["2"] = "Paramédico";
+	$ambulancia["3"] = "con Oxígeno";
+	$ambulancia["4"] = "con Acompañante";
+	
+	$instancia = array();
+	$instancia["1"] = "1ª vez";
+	$instancia["2"] = "Ulteriores";
+	$instancia["3"] = "Renovación";
+	
+	$destino = array();
+	$destino["1"] = "Sgo.del Estero";
+	$destino["2"] = "Córdoba";
+	$destino["3"] = "Tucumán";
+	$destino["4"] = "Otros";
+	
+	$transferencia = array();
+	$transferencia["1"] = "Si";
+	$transferencia["2"] = "No";
+	$transferencia["3"] = "Casa de Santiago";
+	$transferencia["4"] = "Otras";
+	$transferencia["5"] = "Especificar";
+	
+	
+	
 	$resultado = new stdClass;
 	
   	$opciones = new stdClass;
@@ -161,12 +193,39 @@ class class_Solicitudes extends class_Base
 	$rs = $this->mysqli->query($sql);
 	$row = $rs->fetch_object();
 	
+	$row->insumos = array();
+	if ($row->tipo == "M") {
+		$sql = "SELECT sss_insumos.denominacion AS descrip, sss_insumos.codigo, sss_solicitudes_insumos.cantidad, id_prestacion_tipo FROM sss_solicitudes_insumos INNER JOIN sss_insumos USING(id_prestacion) WHERE id_solicitud=" . $row->id_solicitud;
+		$rsInsumo = $this->mysqli->query($sql);
+		while ($rowInsumo = $rsInsumo->fetch_object()) {
+			$rowInsumo->cantidad = (float) $rowInsumo->cantidad;
+			$rowInsumo->tipo_descrip = $rowInsumo->id_prestacion_tipo == 1 ? "Insumos" : "Prótesis";
+			$row->insumos[] = $rowInsumo;
+		}
+	}
+	
 	$row->anses_negativa = ($row->anses_negativa == "S") ? "Si" : "No";
 	
 	$sql = "SELECT apenom AS medico_descrip FROM _personal WHERE id_personal=" . $row->id_usuario_medico;
 	$rsAux = $this->mysqli->query($sql);
 	$rowAux = $rsAux->fetch_object();
 	$row->medico_descrip = $rowAux->medico_descrip;
+	
+	$sql = "SELECT apenom AS medico_descrip FROM _personal WHERE id_personal=" . $row->deriv_id_med_derivante;
+	$rsAux = $this->mysqli->query($sql);
+	$rowAux = $rsAux->fetch_object();
+	$row->medico_deriv_descrip = $rowAux->medico_descrip;
+	
+	$row->movilidad_descrip = $movilidad[$row->dev_movilidad];
+	$row->ambulancia_descrip = $ambulancia[$row->dev_ambulancia];
+	$row->instancia_descrip = $instancia[$row->dev_instancia];
+	$row->destino_descrip = $destino[$row->dev_destino];
+	$row->transferencia_descrip = $transferencia[$row->dev_transferencia];
+	
+	$row->turno_confirmar_descrip = $row->dev_turno_confirmar == "1" ? "Si" : "No";
+	
+	$row->prac_presupuesto_descrip = $row->prac_presupuesto == "1" ? "Si" : "No";
+	
 	
 	$resultado->solicitud = $row;
 	

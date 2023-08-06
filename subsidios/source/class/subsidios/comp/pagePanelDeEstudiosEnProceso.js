@@ -71,7 +71,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	var functionActualizarSolicitud = function(id_solicitud) {
 		
 		tblSolicitud.setFocusedCell();
-		tableModelPrestacion.setDataAsMapArray([], true);
+		tableModelRendicion.setDataAsMapArray([], true);
 		
 		//btnCambiarPrestador.setEnabled(false);
 		btnAutorizar.setEnabled(false);
@@ -160,7 +160,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	
 	var aux = new Date;
 	dtfHasta.setValue(aux);
-	aux.setMonth(aux.getMonth() - 5);
+	aux.setMonth(aux.getMonth() - 6);
 	dtfDesde.setValue(aux);
 	
 	
@@ -264,7 +264,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	btnInicializar.addListener("execute", function(e){
 		var aux = new Date;
 		dtfHasta.setValue(aux);
-		aux.setMonth(aux.getMonth() - 1);
+		aux.setMonth(aux.getMonth() - 6);
 		dtfDesde.setValue(aux);
 		
 		//cboPrestador.setSelection([cboPrestador.getChildren()[0]]);
@@ -619,8 +619,8 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 			
 			rowDataSolicitud = tableModelSolicitud.getRowDataAsMap(tblSolicitud.getFocusedRow());
 			
-			tblPrestacion.setFocusedCell();
-			tableModelPrestacion.setDataAsMapArray([], true);
+			tblRendicion.setFocusedCell();
+			tableModelRendicion.setDataAsMapArray([], true);
 			
 			//controllerFormInfoEntsal.setModel(qx.data.marshal.Json.createModel(rowDataSolicitud));
 			controllerFormInfoEntsal.resetModel();
@@ -664,8 +664,9 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 					//alert(qx.lang.Json.stringify(data, null, 2));
 					
 					controllerFormInfoEntsal.setModel(qx.data.marshal.Json.createModel(data.result.solicitud));
+					tableModelOtros.setDataAsMapArray(data.result.solicitud.insumos);
 			
-					tableModelPrestacion.setDataAsMapArray(data.result.rendiciones, true);
+					tableModelRendicion.setDataAsMapArray(data.result.rendiciones, true);
 				});
 				
 				this.opaqueCallRef = this.rpc.callAsyncListeners(false, "leer_rendiciones", p);
@@ -676,12 +677,12 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 
 	this.add(tblSolicitud, {left: "23%", top: 0, right: 0, bottom: "50%"});
 	
-	
+
 	
 	
 	var gbxOtros = new qx.ui.groupbox.GroupBox("Otros datos");
 	gbxOtros.setLayout(new qx.ui.layout.Grow());
-	this.add(gbxOtros, {left: 0, top: "53%", right: "60%", bottom: 0});
+	this.add(gbxOtros, {left: 0, top: "53%", right: "60%", bottom: "16%"});
 	
 	var containerScroll = new qx.ui.container.Scroll();
 	gbxOtros.add(containerScroll);
@@ -731,6 +732,82 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	aux.setBackgroundColor("#ffffc0");
 	formInfoEntsal.add(aux, "Médico", null, "medico_descrip");
 	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Méd.deriv.", null, "medico_deriv_descrip");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Movilidad", null, "movilidad_descrip");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Ambulancia", null, "ambulancia_descrip");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Instancia", null, "instancia_descrip");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Destino", null, "destino_descrip");
+	
+	var aux = new qx.ui.form.DateField();
+	aux.getChildControl("textfield").setReadOnly(true);
+	aux.getChildControl("button").setVisibility("hidden");
+	//aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Turno fecha", null, "dev_turno_fecha");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Turno confirmar", null, "turno_confirmar_descrip");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Transferencia", null, "transferencia_descrip");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Trans.esp.", null, "dev_transferencia_especificar");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Med.Receptor", null, "dev_medico_receptor");
+	
+	var aux = new qx.ui.form.TextField("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Presupuesto", null, "prac_presupuesto_descrip");
+	
+	var aux = new qx.ui.form.TextArea("");
+	aux.setReadOnly(true);
+	aux.setDecorator("main");
+	aux.setBackgroundColor("#ffffc0");
+	formInfoEntsal.add(aux, "Detalles", null, "prac_detalles");
+	
+	
+	
 	var aux = new qx.ui.form.TextArea("");
 	aux.setReadOnly(true);
 	aux.setDecorator("main");
@@ -759,6 +836,45 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	
 	
 	
+	//Tabla
+	
+	var tableModelOtros = new qx.ui.table.model.Simple();
+	tableModelOtros.setColumns(["Descripción", "Codigo", "Tipo", "Cantidad"], ["descrip", "codigo", "tipo_descrip", "cantidad"]);
+	tableModelOtros.addListener("dataChanged", function(e){
+		var rowCount = this.getRowCount();
+		
+		tblOtros.setAdditionalStatusBarText(rowCount + ((rowCount == 1) ? " item" : " items"));
+	});
+
+	var custom = {tableColumnModel : function(obj) {
+		return new qx.ui.table.columnmodel.Resize(obj);
+	}};
+	
+	var tblOtros = new componente.comp.ui.ramon.table.Table(tableModelOtros, custom);
+	tblOtros.setShowCellFocusIndicator(false);
+	tblOtros.toggleColumnVisibilityButtonVisible();
+	//tbl.setRowHeight(45);
+	//tblRendicion.setContextMenu(menuPrestacion);
+	
+	var tableColumnModelOtros = tblOtros.getTableColumnModel();
+	
+	var resizeBehaviorOtros = tableColumnModelOtros.getBehavior();
+
+	//resizeBehaviorPrestacion.set(0, {width:"30%", minWidth:100});
+	//resizeBehaviorPrestacion.set(1, {width:"70%", minWidth:100});
+	//resizeBehaviorPrestacion.set(2, {width:"60%", minWidth:100});
+	
+	var selectionModelOtros = tblOtros.getSelectionModel();
+	selectionModelOtros.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
+	selectionModelOtros.addListener("changeSelection", function(e){
+
+	});
+
+	this.add(tblOtros, {left: 0, top: "85%", right: "60%", bottom: 0});
+	
+	
+	
+	
 	
 	
 	
@@ -767,7 +883,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	var commandVerDocumento = new qx.ui.command.Command("Enter");
 	commandVerDocumento.setEnabled(false);
 	commandVerDocumento.addListener("execute", function(e){
-		var rowDataRendicion = tableModelPrestacion.getRowDataAsMap(tblPrestacion.getFocusedRow());
+		var rowDataRendicion = tableModelRendicion.getRowDataAsMap(tblRendicion.getFocusedRow());
 		var url = "services/documentos/rendiciones/" + rowDataRendicion.id_rendicion + "/" + rowDataRendicion.documento;
 		window.open(url, "_blank");
 	});
@@ -800,12 +916,11 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	
 	//Tabla
 	
-	
-	var tableModelPrestacion = new qx.ui.table.model.Simple();
-	tableModelPrestacion.setColumns(["Descripción", "Documento", "Monto", "Fecha"], ["descrip", "documento", "monto_rendido", "fecha"]);
-	tableModelPrestacion.addListener("dataChanged", function(e){
-		var rowCount = tableModelPrestacion.getRowCount();
-		var data = tableModelPrestacion.getDataAsMapArray();
+	var tableModelRendicion = new qx.ui.table.model.Simple();
+	tableModelRendicion.setColumns(["Descripción", "Documento", "Monto", "Fecha"], ["descrip", "documento", "monto_rendido", "fecha"]);
+	tableModelRendicion.addListener("dataChanged", function(e){
+		var rowCount = tableModelRendicion.getRowCount();
+		var data = tableModelRendicion.getDataAsMapArray();
 		var total = 0;
 		for (var x in data) {
 			total = total + data[x].monto_rendido;
@@ -814,24 +929,24 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 		text = rowCount + ((rowCount == 1) ? " item" : " items");
 		text = text + " - Total: " + application.numberformatMontoEs.format(total);
 		
-		tblPrestacion.setAdditionalStatusBarText(text);
+		tblRendicion.setAdditionalStatusBarText(text);
 	});
 
 	var custom = {tableColumnModel : function(obj) {
 		return new qx.ui.table.columnmodel.Resize(obj);
 	}};
 	
-	var tblPrestacion = new componente.comp.ui.ramon.table.Table(tableModelPrestacion, custom);
-	tblPrestacion.setShowCellFocusIndicator(false);
-	tblPrestacion.toggleColumnVisibilityButtonVisible();
-	tblPrestacion.setContextMenu(menuRendicion);
-	tblPrestacion.addListener("cellDbltap", function(e){
+	var tblRendicion = new componente.comp.ui.ramon.table.Table(tableModelRendicion, custom);
+	tblRendicion.setShowCellFocusIndicator(false);
+	tblRendicion.toggleColumnVisibilityButtonVisible();
+	tblRendicion.setContextMenu(menuRendicion);
+	tblRendicion.addListener("cellDbltap", function(e){
 		commandVerDocumento.execute();
 	});
 	//tbl.setRowHeight(45);
-	//tblPrestacion.setContextMenu(menuPrestacion);
+	//tblRendicion.setContextMenu(menuPrestacion);
 	
-	var tableColumnModelPrestacion = tblPrestacion.getTableColumnModel();
+	var tableColumnModelPrestacion = tblRendicion.getTableColumnModel();
 	
 	var resizeBehaviorPrestacion = tableColumnModelPrestacion.getBehavior();
 
@@ -851,12 +966,12 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 
 	
 	
-	var selectionModelPrestacion = tblPrestacion.getSelectionModel();
+	var selectionModelPrestacion = tblRendicion.getSelectionModel();
 	selectionModelPrestacion.setSelectionMode(qx.ui.table.selection.Model.SINGLE_SELECTION);
 	selectionModelPrestacion.addListener("changeSelection", function(e){
 		if (!selectionModelPrestacion.isSelectionEmpty()) {
 			
-			var rowDataRendicion = tableModelPrestacion.getRowDataAsMap(tblPrestacion.getFocusedRow());
+			var rowDataRendicion = tableModelRendicion.getRowDataAsMap(tblRendicion.getFocusedRow());
 			console.log(rowDataRendicion);
 			
 			commandVerDocumento.setEnabled(!!rowDataRendicion.documento);
@@ -864,14 +979,16 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 		}
 	});
 
-	this.add(tblPrestacion, {left: "41%", top: "52%", right: 0, bottom: 0});
-
+	var compositeRendicion = new qx.ui.container.Composite(new qx.ui.layout.Canvas());
+	this.add(compositeRendicion, {left: "41%", top: "52%", right: 0, bottom: 0});
 	
+	compositeRendicion.add(new qx.ui.basic.Label("Rendición"), {left: 0, top: 0});
+	compositeRendicion.add(tblRendicion, {left: 0, top: 20, right: 0, bottom: 0});
 	
 	
 	
 	tblSolicitud.setTabIndex(11);
-	tblPrestacion.setTabIndex(12);
+	tblRendicion.setTabIndex(12);
 	
 	
 		
