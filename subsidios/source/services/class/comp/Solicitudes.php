@@ -26,6 +26,7 @@ class class_Solicitudes extends class_Base
 				solicitudes.*,
 				personas1.persona_nombre AS paciente_nombre,
 				personas1.persona_dni AS paciente_dni,
+				personas1.persona_sexo AS paciente_sexo,
 				personas2.persona_nombre AS solicitante_nombre,
 				personas2.persona_dni AS solicitante_dni
 				FROM solicitudes

@@ -1,14 +1,14 @@
 qx.Class.define("subsidios.comp.windowRendicion",
 {
 	extend : componente.comp.ui.ramon.window.Window,
-	construct : function (id_solicitud)
+	construct : function (id_solicitud, monto_total, monto_rendido)
 	{
 	this.base(arguments);
 	
 	this.set({
 		caption: "Agregar rendición",
 		width: 500,
-		height: 300,
+		height: 330,
 		showMinimize: false,
 		showMaximize: false,
 		allowMaximize: false,
@@ -118,11 +118,16 @@ qx.Class.define("subsidios.comp.windowRendicion",
 	form.add(txtObserva, "Observaciones", null, "observaciones");
 	
 	
+	var lblTotal = new qx.ui.basic.Label("Monto Total: " + application.numberformatMontoEs.format(monto_total));
+	this.add(lblTotal, {left: 100, top: 0});
+	
+	var lblRendido = new qx.ui.basic.Label("Monto rendido: " + application.numberformatMontoEs.format(monto_rendido));
+	this.add(lblRendido, {left: 270, top: 0});
 	
 	var controllerForm = new qx.data.controller.Form(null, form);
 	
 	var formView = new qx.ui.form.renderer.Single(form);
-	this.add(formView, {left: 0, top: 0});
+	this.add(formView, {left: 0, top: 30});
 	
 	var aux = qx.data.marshal.Json.createModel({descrip: "", monto_rendido: 0, observaciones: ""}, true);
 	controllerForm.setModel(aux);
@@ -131,12 +136,12 @@ qx.Class.define("subsidios.comp.windowRendicion",
 	var lblDocumento = new qx.ui.basic.Label("Documento: ");
 	lblDocumento.setPadding(5, 5, 5, 5);
 	lblDocumento.setDecorator("main");
-	this.add(lblDocumento, {left: 0, top: 140});
+	this.add(lblDocumento, {left: 0, top: 170});
 	
 	var lblName = new qx.ui.basic.Label("");
 	lblName.setPadding(5, 5, 5, 5);
 	//lblName.setDecorator("main");
-	this.add(lblName, {left: 85, top: 151});
+	this.add(lblName, {left: 85, top: 181});
 	
 	var imgDocumento = new qx.ui.basic.Image("./services/documentos/loading66.gif" + "?" + Math.random());
 	imgDocumento.setVisibility("hidden");
@@ -146,7 +151,7 @@ qx.Class.define("subsidios.comp.windowRendicion",
 	//imgDocumento.setDecorator("main");
 	imgDocumento.setScale(true);
 
-	this.add(imgDocumento, {left: 90, top: 150});
+	this.add(imgDocumento, {left: 90, top: 180});
 	
 	
 	var btnAceptar = new qx.ui.form.Button("Aceptar");

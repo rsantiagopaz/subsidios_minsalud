@@ -6,6 +6,69 @@ set_time_limit(0);
 
 class class_WebServices
 {
+	private $ne = [
+		'IdAutorizacion',	
+		'IdInternado',
+		'idtramiteprincipal',
+		'idtramitetarjetareimpresa',
+		'idciudadano',
+		'codigoError',
+	];
+	
+	private $t = [
+		'NombreAfiliado' => 'Nombre afiliado',	
+		'A_Numero' => 'Af.numero',
+		
+		'Practicas' => 'Practicas',
+		'TipoPractica' => 'Tipo practica',
+		'Prescriptor' => 'Prescriptor',
+		'Numero' => 'Numero',
+		'FechaEmision' => 'Fecha emision',
+		'Observaciones' => 'Observaciones',
+		'PracticaDetalle' => 'Detalle',
+		'Codigo' => 'Codigo',
+		'Practica' => 'Practica',
+		'Cantidad' => 'Cantidad',
+		
+		'DetallesInternaciones' => 'Internaciones',
+		'Clinica' => 'Clinica',
+		'EstadoInternacion' => 'Estado internacion',
+		'FechaHoraInternacion' => 'Fecha internacion',
+		'FechaHoraAlta' => 'Fecha alta',
+		'TipoAlta' => 'Tipo alta',
+		'Diagnostico' => 'Diagnostico',
+		
+		'apellido' => 'Apellido',
+		'nombres' => 'Nombres',
+		'fechaNacimiento' => 'Fecha nacimiento',
+		'cuil' => 'CUIL',
+		'calle' => 'Calle',
+		'numero' => 'Numero',
+		'piso' => 'Piso',
+		'departamento' => 'Departamento',
+		'cpostal' => 'Cod.postal',
+		'barrio' => 'Barrio',
+		'monoblock' => 'Monoblock',
+		'ciudad' => 'Ciudad',
+		'municipio' => 'Municipio',
+		'provincia' => 'Provincia',
+		'pais' => 'Pais',
+		
+		'ejemplar' => 'Ejemplar',
+		'vencimiento' => 'Vencimiento',
+		'fechaConsulta' => 'Fecha consulta',
+		'descripcionError' => 'Descripcion consulta',
+		'numeroDocumento' => 'Numero documento',
+		'sexo' => 'Sexo',
+		'mensaf' => 'Mensaje fallecimiento',
+		'origenf' => 'Origen fallecimiento',
+		'fechaf' => 'Fecha fallecimiento',
+		
+		'data' => 'Coberturas',
+		'rnos' => 'Codigo RNOS',
+		'cobertura' => 'Cobertura',
+		'servicio' => 'Servicio',
+	];
 	
 	
   public function method_getPracticas($params, $error) {
@@ -14,7 +77,7 @@ class class_WebServices
   	$resultado = new stdClass;
 	
 	//webService
-	$url = 'http://app.iosep.gov.ar/WsHospitales/api/Practicas?DNI=' . $p->dni;
+	$url = 'https://app.iosep.gob.ar/WsHospitales/api/Practicas?DNI=' . $p->dni;
 
 	$curl = curl_init();
 	/*******************************************OPCIONES*************************/
@@ -32,6 +95,10 @@ class class_WebServices
 
 	/*******************************************EJECUCION************************/
 	$result = curl_exec($curl);
+	if (curl_errno($curl)) {
+		$resultado->texto = curl_error($curl);
+		return $resultado;
+	}
 	$datos = json_decode($result);
 
 	curl_close($curl);
@@ -39,43 +106,34 @@ class class_WebServices
 	//$datos = simplexml_load_string($result);
 	
 	$resultado->datos = $datos;
-	$resultado->texto = chr(13);
-	
 	if ($datos->error == true) {
-		$resultado->texto.= $datos->mensaje;
+		$resultado->texto.= chr(13) . $datos->mensaje;
 	} else {
-		$resultado->texto.= "Nombre afiliado: " . $datos->NombreAfiliado . chr(13);
-		$resultado->texto.= "Af.numero: " . $datos->A_Numero . chr(13);
-		
-		if (! is_null($datos->Practicas) && count($datos->Practicas) > 0) {
-			$resultado->texto.= chr(13);
-			$resultado->texto.= "Practicas: (" . count($datos->Practicas) . ")" . chr(13);
-			$resultado->texto.= "----------------------------------------------------------------------------------------------------------------------------" . chr(13);
-		
-			foreach ($datos->Practicas as $practica) {
-				$resultado->texto.= "    " . "Tipo practica: " . $practica->TipoPractica . chr(13);
-				$resultado->texto.= "    " . "Prescriptor: " . $practica->Prescriptor . chr(13);
-				$resultado->texto.= "    " . "Numero: " . $practica->Numero . chr(13);
-				$resultado->texto.= "    " . "Fecha emision: " . $practica->FechaEmision . chr(13);
-				$resultado->texto.= "    " . "Observaciones: " . $practica->Observaciones . chr(13);
-				
-				if (! is_null($practica->PracticaDetalle) && count($practica->PracticaDetalle) > 0) {
-					$resultado->texto.= "    " . "Detalle: (" . count($practica->PracticaDetalle) . ")" . chr(13);
-					
-					foreach ($practica->PracticaDetalle as $detalle) {
-						$resultado->texto.= "    " . "    " . "Código: " . $detalle->Codigo . chr(13);
-						$resultado->texto.= "    " . "    " . "Practica: " . $detalle->Practica . chr(13);
-						$resultado->texto.= "    " . "    " . "Cantidad: " . $detalle->Cantidad . chr(13);
-						$resultado->texto.= chr(13);
-					}
-				}
-				
-				$resultado->texto.= "----------------------------------------------------------------------------------------------------------------------------" . chr(13);
-			}
-		}
+		$render = implode(chr(13), $this->render($datos, 0));
+		$resultado->texto = chr(13) . $render;		
 	}
 	
 	return $resultado;
+  }
+  
+  private function render($datos, $level) {
+  	$texto = [];
+  	foreach ($datos as $key => $value) {
+  		if (!in_array($key, $this->ne) && !is_null($value)) {
+  			$t = ($this->t[$key] ? $this->t[$key] : $key) . ': ';
+			if (is_array($value)) {
+	  			$texto[] = str_repeat(' ', $level * 7) . $t . '(' . count($value) . ')';
+	  			foreach ($value as $item) {
+	  				$render = $this->render($item, $level + 1);
+	  				$texto = array_merge($texto, $render);
+	  				$texto[] = '';
+	  			}
+	  		} else {
+	  			$texto[] = str_repeat(' ', $level * 7) . htmlentities($t) . htmlentities($value);
+	  		}
+  		}
+  	}
+  	return $texto; 
   }
   
   
@@ -85,7 +143,7 @@ class class_WebServices
   	$resultado = new stdClass;
 	
 	//webService
-	$url = 'http://app.iosep.gov.ar/WsHospitales/api/Internados?DNI=' . $p->dni;
+	$url = 'https://app.iosep.gob.ar/WsHospitales/api/Internados?DNI=' . $p->dni;
 
 	$curl = curl_init();
 	/*******************************************OPCIONES*************************/
@@ -103,6 +161,10 @@ class class_WebServices
 
 	/*******************************************EJECUCION************************/
 	$result = curl_exec($curl);
+	if (curl_errno($curl)) {
+		$resultado->texto = curl_error($curl);
+		return $resultado;
+	}
 	$datos = json_decode($result);
 
 	curl_close($curl);
@@ -110,57 +172,67 @@ class class_WebServices
 	//$datos = simplexml_load_string($result);
 	
 	$resultado->datos = $datos;
-	$resultado->texto = chr(13);
-	
 	if ($datos->error == true) {
-		$resultado->texto.= $datos->mensaje;
+		$resultado->texto.= chr(13) . $datos->mensaje;
 	} else {
-		$resultado->texto.= "Nombre afiliado: " . $datos->NombreAfiliado . chr(13);
-		$resultado->texto.= "Af.numero: " . $datos->A_Numero . chr(13);
+		$render = implode(chr(13), $this->render($datos, 0));
+		$resultado->texto = chr(13) . $render;		
+	}
+	
+	return $resultado;
+  }
+  
+  public function method_getPuco1($params, $error) {
+  	$p = $params[0];
+  	
+  	$resultado = new stdClass;
+	
+	//webService
+	$url = 'http://mpi.msalsgo.gob.ar/renaper.php?token=y8M$0lLk1Dv6*qFzO@J7bGs4RmP2nThXwE9VcU3oNt!eA%BxW5rS&dni=' . $p->dni . '&sexo=' . $p->sexo;
+	
+	//$url = 'https://mpi.msalsgo.gob.ar/coberturas.php?token=y8M$0lLk1Dv6*qFzO@J7bGs4RmP2nThXwE9VcU3oNt!eA%BxW5rS&dni='.$p->dni.'&sexo=' . $p->sexo;
+
+	$curl = curl_init();
+	/*******************************************OPCIONES*************************/
+	//curl_setopt($curl, CURLOPT_POST, 1);
+	//curl_setopt($curl, CURLOPT_POSTFIELDS, $data); //si requiere autenticación
+	curl_setopt($curl, CURLOPT_URL, $url);
+	/*
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+	  'APIKEY: 666',
+	  'Content-Type: application/json',
+	));
+	*/
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	//curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+
+	/*******************************************EJECUCION************************/
+	$result = curl_exec($curl);
+	if (curl_errno($curl)) {
+		$resultado->texto = curl_error($curl);
+		return $resultado;
+	}
+	$datos = json_decode($result);
+	
+	if ($datos->successful && $datos->statusCode == 200) {
+		$resultado->texto = json_encode($datos);
+		$resultado->datos = $datos->data[0];
 		
-		if (! is_null($datos->DetallesInternaciones) && count($datos->DetallesInternaciones) > 0) {
-			$resultado->texto.= chr(13);
-			$resultado->texto.= "Internaciones: (" . count($datos->DetallesInternaciones) . ")" . chr(13);
-			$resultado->texto.= "======================================================================================" . chr(13);
+		$url = 'http://mpi.msalsgo.gob.ar/coberturas.php?token=y8M$0lLk1Dv6*qFzO@J7bGs4RmP2nThXwE9VcU3oNt!eA%BxW5rS&dni='.$p->dni.'&sexo=' . $p->sexo;
+		curl_setopt($curl, CURLOPT_URL, $url);
 		
-			foreach ($datos->DetallesInternaciones as $internacion) {
-				$resultado->texto.= "    " . "Clínica: " . $internacion->Clinica . chr(13);
-				$resultado->texto.= "    " . "Estado internacion: " . $internacion->EstadoInternacion . chr(13);
-				$resultado->texto.= "    " . "Fecha internacion: " . $internacion->FechaHoraInternacion . chr(13);
-				$resultado->texto.= "    " . "Fecha alta: " . $internacion->FechaHoraAlta . chr(13);
-				$resultado->texto.= "    " . "Tipo alta: " . $internacion->TipoAlta . chr(13);
-				$resultado->texto.= "    " . "Diagnóstico: " . $internacion->Diagnostico . chr(13);
-				
-				if (! is_null($internacion->Practicas) && count($internacion->Practicas) > 0) {
-					$resultado->texto.= chr(13);
-					$resultado->texto.= "    " . "Practicas: (" . count($internacion->Practicas) . ")" . chr(13);
-					$resultado->texto.= "    " . "------------------------------------------------------------" . chr(13);
-				
-					foreach ($internacion->Practicas as $practica) {
-						$resultado->texto.= "    " . "    " . "Tipo practica: " . $practica->TipoPractica . chr(13);
-						$resultado->texto.= "    " . "    " . "Prescriptor: " . $practica->Prescriptor . chr(13);
-						$resultado->texto.= "    " . "    " . "Numero: " . $practica->Numero . chr(13);
-						$resultado->texto.= "    " . "    " . "Fecha emision: " . $practica->FechaEmision . chr(13);
-						$resultado->texto.= "    " . "    " . "Observaciones: " . $practica->Observaciones . chr(13);
-						
-						if (! is_null($practica->PracticaDetalle) && count($practica->PracticaDetalle) > 0) {
-							$resultado->texto.= "    " . "    " . "Detalle: (" . count($practica->PracticaDetalle) . ")" . chr(13);
-							
-							foreach ($practica->PracticaDetalle as $detalle) {
-								$resultado->texto.= "    " . "    " . "    " . "Código: " . $detalle->Codigo . chr(13);
-								$resultado->texto.= "    " . "    " . "    " . "Practica: " . $detalle->Practica . chr(13);
-								$resultado->texto.= "    " . "    " . "    " . "Cantidad: " . $detalle->Cantidad . chr(13);
-								$resultado->texto.= chr(13);
-							}
-						}
-						
-						$resultado->texto.= "    " . "------------------------------------------------------------" . chr(13);
-					}
-				}
-				
-				$resultado->texto.= "======================================================================================" . chr(13);
-			}
+		$result = curl_exec($curl);
+		$datos = json_decode($result);
+		if ($datos->successful && $datos->statusCode == 200) {
+			$resultado->datos->data = $datos->data;
+			
+			$render = implode(chr(13), $this->render($resultado->datos, 0));
+			$resultado->texto = chr(13) . $render;
+		} else {
+			$resultado->texto = chr(13) . implode(chr(13), $datos->data);
 		}
+	} else {
+		$resultado->texto = chr(13) . ($datos->message ? $datos->message : json_encode($datos));
 	}
 	
 	return $resultado;
@@ -168,7 +240,7 @@ class class_WebServices
   
   
   
-  public function method_getPuco1($params, $error) {
+  public function method_getPuco1original($params, $error) {
   	$p = $params[0];
   	
   	$resultado = new stdClass;
@@ -331,4 +403,3 @@ class class_WebServices
 //$datos = puco();
 //print_r($datos);
 ?>
-

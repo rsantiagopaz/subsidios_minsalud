@@ -74,13 +74,14 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 		tableModelRendicion.setDataAsMapArray([], true);
 		
 		//btnCambiarPrestador.setEnabled(false);
+		btnModificarMonto.setEnabled(false);
 		btnAutorizar.setEnabled(false);
 		btnBloquear.setEnabled(false);
 		btnEliminar.setEnabled(false);
 		btnGdeGedo.setEnabled(false);
 		btnWebServices.setEnabled(false);
 		btnHistorial.setEnabled(false);
-		menuSolicitud.memorizar([btnAutorizar, btnBloquear, btnEliminar, btnGdeGedo, btnWebServices, btnHistorial]);
+		menuSolicitud.memorizar([btnModificarMonto, btnAutorizar, btnBloquear, btnEliminar, btnGdeGedo, btnWebServices, btnHistorial]);
 		
 		btnAgregarRendicion.setEnabled(false);
 		commandVerDocumento.setEnabled(false);
@@ -344,6 +345,21 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	});
 	*/
 	
+	var btnModificarMonto = new qx.ui.menu.Button("Modificar monto total...");
+	btnModificarMonto.setEnabled(false);
+	btnModificarMonto.addListener("execute", function(e){
+		var win = new subsidios.comp.windowModificarMonto(rowDataSolicitud.id_solicitud, parseFloat(rowDataSolicitud.monto_total));
+		win.setModal(true);
+		win.addListener("aceptado", function(e){
+			var data = e.getData();
+			
+			functionActualizarSolicitud(rowDataSolicitud.id_solicitud);
+		});
+		application.getRoot().add(win);
+		win.center();
+		win.open();
+	});
+	
 	var btnAutorizar = new qx.ui.menu.Button("Aprobar...");
 	btnAutorizar.setEnabled(false);
 	btnAutorizar.addListener("execute", function(e){
@@ -494,7 +510,9 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	
 	var btnWebServices = new qx.ui.menu.Button("consultar Web services...");
 	btnWebServices.addListener("execute", function(e){
-		var win = new subsidios.comp.windowWebService(rowDataSolicitud.paciente_dni);
+		var sexos = {'F': 1, 'M': 2};
+		var sexo = sexos[rowDataSolicitud.paciente_sexo] ? sexos[rowDataSolicitud.paciente_sexo] : 3;
+		var win = new subsidios.comp.windowWebService(rowDataSolicitud.paciente_dni, sexo);
 		win.setModal(true);
 		application.getRoot().add(win);
 		win.center();
@@ -512,6 +530,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	var menuSolicitud = new componente.comp.ui.ramon.menu.Menu();
 	
 	//menuSolicitud.add(btnCambiarPrestador);
+	if (application.login.perfiles['ssm004']) menuSolicitud.add(btnModificarMonto);
 	if (application.login.perfiles['ssm002']) menuSolicitud.add(btnAutorizar);
 	if (application.login.perfiles['ssm002']) menuSolicitud.add(btnBloquear);
 	if (application.login.perfiles['ssm004']) menuSolicitud.add(btnGdeGedo);
@@ -626,6 +645,8 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 			controllerFormInfoEntsal.resetModel();
 			
 			//btnCambiarPrestador.setEnabled(rowDataSolicitud.estado == "E" || rowDataSolicitud.estado == "A");
+			var modificarMontoEnabled = !(rowDataSolicitud.gde == "" && rowDataSolicitud.gedo == "") && rowDataSolicitud.estado != "B" && rowDataSolicitud.estado_rendicion != "R"
+			btnModificarMonto.setEnabled(modificarMontoEnabled);
 			btnAutorizar.setEnabled(rowDataSolicitud.estado == "E");
 			btnBloquear.setEnabled(rowDataSolicitud.estado == "B" || rowDataSolicitud.estado == "E" || rowDataSolicitud.estado == "A");
 			btnBloquear.setLabel((rowDataSolicitud.estado == "B") ? "Desbloquear" : "Bloquear...")
@@ -634,7 +655,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 			btnWebServices.setEnabled(true);
 			btnHistorial.setEnabled(true);
 			
-			menuSolicitud.memorizar([btnAutorizar, btnBloquear, btnEliminar, btnGdeGedo, btnWebServices, btnHistorial]);
+			menuSolicitud.memorizar([btnModificarMonto, btnAutorizar, btnBloquear, btnEliminar, btnGdeGedo, btnWebServices, btnHistorial]);
 			
 			var banderaAgregarRendicion = rowDataSolicitud.estado == "A" && rowDataSolicitud.estado_rendicion != "R"; 
 			btnAgregarRendicion.setEnabled(banderaAgregarRendicion);
@@ -890,7 +911,7 @@ qx.Class.define("subsidios.comp.pagePanelDeEstudiosEnProceso",
 	
 	var btnAgregarRendicion = new qx.ui.menu.Button("Agregar...");
 	btnAgregarRendicion.addListener("execute", function(e){
-		var win = new subsidios.comp.windowRendicion(rowDataSolicitud.id_solicitud);
+		var win = new subsidios.comp.windowRendicion(rowDataSolicitud.id_solicitud, rowDataSolicitud.monto_total, rowDataSolicitud.monto_rendido);
 		win.setModal(true);
 		win.addListener("aceptado", function(e){
 			var data = e.getData();
