@@ -91,6 +91,7 @@ class class_WebServices
 	));
 	*/
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // Desactivar la verificación SSL
 	//curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 
 	/*******************************************EJECUCION************************/
