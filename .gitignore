@@ -5,6 +5,8 @@ build/
 .metadata/
 node_modules/
 subsidios/source/services/documentos/
+subsidios/source/services/php-traditional-server-master/chunks/
+subsidios/source/services/php-traditional-server-master/files/
 
 
 
